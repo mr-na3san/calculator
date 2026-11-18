@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hikari — Anime Art Gallery</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0d0b12;
+    --bg-raised: #15121c;
+    --card: #1a1623;
+    --card-hover: #211c2c;
+    --line: #2a2434;
+    --text: #ece7f5;
+    --text-dim: #a89fc0;
+    --text-faint: #6f6686;
+    --accent-a: #a855f7;
+    --accent-b: #ec4899;
+    --accent-grad: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+    --nsfw: #f43f5e;
+    --radius: 14px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  html { scroll-padding-top: calc(72px + var(--safe-top)); }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    padding-top: var(--safe-top);
+    padding-bottom: var(--safe-bottom);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0 0 auto;
+    height: calc(72px + var(--safe-top));
+    background: rgba(13,11,18,.78);
+    backdrop-filter: blur(16px);
+    z-index: 10;
+  }
+
+  ::selection { background: var(--accent-a); color: #fff; }
+
+  a { color: inherit; text-decoration: none; }
+
+  .bg-glow {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(640px 420px at 15% -5%, rgba(168,85,247,.16), transparent 60%),
+      radial-gradient(520px 420px at 100% 10%, rgba(236,72,153,.12), transparent 60%);
+    pointer-events: none;
+  }
+
+  header {
+    position: sticky;
+    top: var(--safe-top);
+    z-index: 20;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 18px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 23px;
+    letter-spacing: .2px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .brand .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent-grad);
+    display: inline-block;
+    margin-inline-start: 1px;
+  }
+
+  nav.pages {
+    display: flex;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+  nav.pages button {
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: color .15s;
+    white-space: nowrap;
+  }
+  nav.pages button.active {
+    background: var(--card);
+    color: var(--text);
+  }
+  nav.pages button[data-page="nsfw"].active { color: #ffb4c6; }
+
+  .search-wrap {
+    flex: 1;
+    max-width: 420px;
+    position: relative;
+    margin-inline-start: auto;
+  }
+  .search-wrap input {
+    width: 100%;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 14px 10px 38px;
+    border-radius: 999px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .search-wrap input:focus { border-color: var(--accent-a); }
+  .search-wrap svg {
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    width: 15px; height: 15px;
+    stroke: var(--text-faint);
+  }
+
+  .icon-btn {
+    width: 40px; height: 40px;
+    display: grid; place-items: center;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+    transition: background .15s, border-color .15s;
+  }
+  .icon-btn:hover { background: var(--card-hover); border-color: #3a3348; }
+  .icon-btn svg { width: 18px; height: 18px; stroke: var(--text); }
+  .icon-btn .badge {
+    position: absolute;
+    top: -3px; right: -3px;
+    background: var(--accent-grad);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 16px; height: 16px;
+    border-radius: 999px;
+    display: grid; place-items: center;
+    padding: 0 3px;
+  }
+
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+
+  .hero {
+    padding: 36px 4px 28px;
+  }
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.05;
+    margin: 0 0 10px;
+    max-width: 14ch;
+  }
+  .hero h1 em {
+    font-style: italic;
+    font-weight: 500;
+    background: var(--accent-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero p {
+    color: var(--text-dim);
+    font-size: 15.5px;
+    max-width: 52ch;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin: 22px 0 22px;
+  }
+  .chip {
+    border: 1px solid var(--line);
+    background: var(--bg-raised);
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .chip:hover { border-color: #463d59; color: var(--text); }
+  .chip.active {
+    background: var(--accent-grad);
+    border-color: transparent;
+    color: #fff;
+  }
+  .chip .x { opacity: .7; font-size: 11px; }
+
+  .toolbar-divider {
+    width: 1px; height: 20px;
+    background: var(--line);
+    margin: 0 4px;
+  }
+
+  select.sort {
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    margin-inline-start: auto;
+  }
+
+  .masonry {
+    columns: 5 240px;
+    column-gap: 14px;
+  }
+  @media (max-width: 680px) { .masonry { columns: 2 150px; column-gap: 10px; } }
+
+  .tile {
+    break-inside: avoid;
+    margin-bottom: 14px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--line);
+    cursor: pointer;
+    opacity: 0;
+    animation: rise .5s ease forwards;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .tile img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: transform .4s ease;
+  }
+  .tile:hover img { transform: scale(1.035); }
+
+  .tile .overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,0) 42%);
+    opacity: 0;
+    transition: opacity .2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 10px;
+  }
+  .tile:hover .overlay { opacity: 1; }
+  .tile .tags-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .tile .tags-row span {
+    font-size: 10.5px;
+    font-weight: 700;
+    background: rgba(255,255,255,.14);
+    backdrop-filter: blur(4px);
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+  .tile .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .tile .meta-row .fav-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .tile .fav-btn {
+    width: 30px; height: 30px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.14);
+    backdrop-filter: blur(4px);
+    border: none;
+    display: grid; place-items: center;
+    cursor: pointer;
+  }
+  .tile .fav-btn svg { width: 15px; height: 15px; stroke: #fff; fill: none; }
+  .tile .fav-btn.is-fav svg { fill: var(--accent-b); stroke: var(--accent-b); }
+
+  .tile.nsfw-locked .overlay {
+    opacity: 1;
+    background: rgba(13,11,18,.88);
+    backdrop-filter: blur(22px);
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 4px;
+  }
+  .tile.nsfw-locked .overlay .lock-label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .3px;
+    color: var(--text-dim);
+  }
+
+  .skeleton {
+    break-inside: avoid;
+    margin-bottom: 14px;
+    border-radius: var(--radius);
+    background: linear-gradient(100deg, var(--card) 30%, var(--card-hover) 50%, var(--card) 70%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+  @keyframes shimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+
+  .empty-state, .error-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 70px 20px;
+    color: var(--text-dim);
+  }
+  .empty-state .glyph, .error-state .glyph { font-size: 38px; margin-bottom: 14px; display: block; }
+  .empty-state h3, .error-state h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; color: var(--text); margin: 0 0 6px; }
+  .error-state button {
+    margin-top: 16px;
+    background: var(--accent-grad);
+    border: none;
+    color: #fff;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .sentinel { height: 1px; }
+
+  .loadmore-spin {
+    display: flex;
+    justify-content: center;
+    padding: 30px 0;
+  }
+  .spinner {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 3px solid var(--line);
+    border-top-color: var(--accent-a);
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .spinner, .tile, .skeleton { animation: none !important; }
+  }
+
+  /* lightbox */
+  .lightbox {
+    position: fixed; inset: 0;
+    background: rgba(8,6,12,.96);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: calc(20px + var(--safe-top)) 16px calc(20px + var(--safe-bottom));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+  }
+  .lightbox.open { opacity: 1; pointer-events: auto; }
+  .lightbox-inner {
+    display: flex;
+    max-width: 1100px;
+    width: 100%;
+    max-height: 100%;
+    gap: 0;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  @media (max-width: 760px) { .lightbox-inner { flex-direction: column; overflow-y: auto; } }
+
+  .lightbox-img-wrap {
+    flex: 1 1 60%;
+    min-width: 0;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .lightbox-img-wrap img {
+    max-width: 100%;
+    max-height: 82vh;
+    width: auto; height: auto;
+    display: block;
+    object-fit: contain;
+  }
+  @media (max-width: 760px) { .lightbox-img-wrap img { max-height: 50vh; } }
+
+  .lightbox-nav {
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    width: 42px; height: 42px;
+    background: rgba(0,0,0,.45);
+    border: none;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    cursor: pointer;
+    color: #fff;
+  }
+  .lightbox-nav svg { width: 20px; height: 20px; stroke: #fff; }
+  .lightbox-nav.prev { left: 14px; }
+  .lightbox-nav.next { right: 14px; }
+
+  .lightbox-panel {
+    flex: 0 0 320px;
+    padding: 22px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .lightbox-panel .lb-close {
+    align-self: flex-end;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    display: grid; place-items: center;
+    cursor: pointer;
+    margin-bottom: 14px;
+  }
+  .lightbox-panel .lb-close svg { width: 14px; height: 14px; stroke: var(--text); }
+  .lightbox-panel h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .lightbox-panel .lb-artist {
+    color: var(--text-dim);
+    font-size: 13.5px;
+    margin: 0 0 16px;
+  }
+  .lightbox-panel .lb-artist a { color: var(--accent-a); font-weight: 600; }
+  .lb-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+  .lb-tags span {
+    font-size: 11.5px; font-weight: 600;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    padding: 4px 10px;
+    border-radius: 999px;
+    color: var(--text-dim);
+  }
+  .lb-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 12.5px;
+    color: var(--text-faint);
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .lb-stats b { color: var(--text); font-weight: 700; }
+  .lb-actions { display: flex; gap: 8px; margin-top: auto; }
+  .lb-actions button {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 11px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg-raised);
+    color: var(--text);
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .lb-actions button:hover { background: var(--card-hover); }
+  .lb-actions button.primary {
+    background: var(--accent-grad);
+    border-color: transparent;
+    color: #fff;
+  }
+  .lb-actions button svg { width: 15px; height: 15px; }
+  .toast {
+    position: fixed;
+    bottom: calc(24px + var(--safe-bottom));
+    left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--card);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 11px 18px;
+    border-radius: 999px;
+    z-index: 200;
+    opacity: 0;
+    transition: all .25s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* age gate */
+  .gate {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .gate-card {
+    max-width: 420px;
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 36px 30px;
+    text-align: center;
+  }
+  .gate-card .glyph { font-size: 34px; margin-bottom: 14px; }
+  .gate-card h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 23px;
+    margin: 0 0 10px;
+  }
+  .gate-card p {
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 24px;
+  }
+  .gate-card .gate-actions { display: flex; flex-direction: column; gap: 10px; }
+  .gate-card button {
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14.5px;
+    padding: 13px;
+    border-radius: 11px;
+    cursor: pointer;
+    border: 1px solid var(--line);
+  }
+  .gate-card .confirm {
+    background: var(--accent-grad);
+    border-color: transparent;
+    color: #fff;
+  }
+  .gate-card .leave {
+    background: transparent;
+    color: var(--text-dim);
+  }
+  .gate-card .fine {
+    font-size: 11.5px;
+    color: var(--text-faint);
+    margin-top: 18px;
+    line-height: 1.5;
+  }
+
+  .tag-panel {
+    position: fixed;
+    inset: 0;
+    background: rgba(8,6,12,.7);
+    backdrop-filter: blur(6px);
+    z-index: 90;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s;
+  }
+  .tag-panel.open { opacity: 1; pointer-events: auto; }
+  .tag-sheet {
+    position: absolute;
+    top: 0; right: 0;
+    height: 100%;
+    width: min(360px, 100%);
+    background: var(--bg-raised);
+    border-left: 1px solid var(--line);
+    padding: calc(24px + var(--safe-top)) 22px 22px;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform .25s ease;
+  }
+  .tag-panel.open .tag-sheet { transform: translateX(0); }
+  .tag-sheet h3 { font-family: 'Fraunces', serif; font-size: 19px; margin: 0 0 16px; }
+  .tag-sheet .tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag-sheet .tag-list button {
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    background: var(--card);
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    padding: 7px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .tag-sheet .tag-list button.active {
+    background: var(--accent-grad);
+    border-color: transparent;
+    color: #fff;
+  }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 30px 20px 50px;
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 12.5px;
+    line-height: 1.8;
+  }
+  footer a { color: var(--text-dim); font-weight: 600; }
+
+  @media (max-width: 680px) {
+    .search-wrap { display: none; }
+    .brand { font-size: 20px; }
+    header { padding: 0 14px; gap: 10px; }
+    main { padding: 18px 14px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<header>
+  <div class="brand" onclick="window.scrollTo({top:0,behavior:'smooth'})">Hikari<span class="dot"></span></div>
+  <nav class="pages">
+    <button class="active" data-page="sfw">Explore</button>
+    <button data-page="nsfw">After Dark</button>
+  </nav>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input id="searchInput" type="text" placeholder="Search a tag, e.g. kitsune, maid, waifu...">
+  </div>
+  <button class="icon-btn" id="favBtn" title="Favorites">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+    <span class="badge" id="favBadge" style="display:none">0</span>
+  </button>
+</header>
+
+<main>
+  <section class="hero" id="heroSection">
+    <h1>Curated anime art, <em>endlessly</em> scrollable.</h1>
+    <p>Four thousand-plus illustrations pulled straight from the Hikari archive — filter by tag, save favorites, and lose an afternoon.</p>
+  </section>
+
+  <div class="toolbar">
+    <button class="chip" id="randomChip">🎲 Shuffle</button>
+    <button class="chip" id="tagsChip">Browse tags</button>
+    <div id="activeTagChips" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+    <select class="sort" id="sortSelect">
+      <option value="date">Newest first</option>
+      <option value="favorites">Most favorited</option>
+      <option value="random">Random</option>
+    </select>
+  </div>
+
+  <div class="masonry" id="gallery"></div>
+  <div class="sentinel" id="sentinel"></div>
+  <div class="loadmore-spin" id="loadSpin" style="display:none"><div class="spinner"></div></div>
+</main>
+
+<footer>
+  Hikari is a fan-made viewer for a public anime image archive. Artwork belongs to its original creators — source links are provided on every piece.<br>
+  Images load live from the archive API and may change over time. By browsing the After Dark page you confirm you meet the required age in your region.
+</footer>
+
+<div class="tag-panel" id="tagPanel">
+  <div class="tag-sheet">
+    <h3>Browse tags</h3>
+    <div class="tag-list" id="tagList"><div class="skeleton" style="height:28px;width:70px;display:inline-block;"></div></div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-inner">
+    <div class="lightbox-img-wrap">
+      <button class="lightbox-nav prev" id="lbPrev"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <img id="lbImg" alt="">
+      <button class="lightbox-nav next" id="lbNext"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+    <div class="lightbox-panel">
+      <button class="lb-close" id="lbClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <h3 id="lbTitle">Untitled piece</h3>
+      <p class="lb-artist" id="lbArtist"></p>
+      <div class="lb-tags" id="lbTags"></div>
+      <div class="lb-stats">
+        <div><b id="lbFav">0</b> favorites</div>
+        <div><b id="lbDims">—</b></div>
+        <div><b id="lbSize">—</b></div>
+      </div>
+      <div class="lb-actions">
+        <button id="lbFavBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg> Save</button>
+        <button id="lbCopyBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 9h10v10H9zM5 15V5h10"/></svg> Copy link</button>
+        <a id="lbDownloadBtn" class="primary" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:7px;flex:1;font-weight:700;font-size:13px;padding:11px 10px;border-radius:10px;background:var(--accent-grad);color:#fff;" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg> Save image</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="gate" id="ageGate" style="display:none">
+  <div class="gate-card">
+    <div class="glyph">🔞</div>
+    <h2>You're about to enter After Dark</h2>
+    <p>This section contains NSFW anime artwork intended for adults only. Please confirm you are at least 18 years old, or the age of majority where you live.</p>
+    <div class="gate-actions">
+      <button class="confirm" id="gateConfirm">I'm 18 or older — continue</button>
+      <button class="leave" id="gateLeave">Take me back</button>
+    </div>
+    <p class="fine">This confirmation is stored only on this device and won't be asked again.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const API = "https://api.waifu.best";
+  const PAGE_SIZE = 24;
+
+  const state = {
+    page: "sfw",
+    items: [],
+    tagObjects: [],
+    includedTags: [],
+    searchTag: "",
+    sort: "date",
+    pageNum: 1,
+    hasNext: true,
+    loading: false,
+    favorites: loadFavorites(),
+    lightboxIndex: -1,
+    ageConfirmed: localStorage.getItem('hikari_age_ok') === '1'
+  };
+
+  const gallery = document.getElementById('gallery');
+  const sentinel = document.getElementById('sentinel');
+  const loadSpin = document.getElementById('loadSpin');
+  const heroSection = document.getElementById('heroSection');
+
+  function loadFavorites(){
+    try {
+      const raw = localStorage.getItem('hikari_favorites');
+      return raw ? JSON.parse(raw) : [];
+    } catch(e){ return []; }
+  }
+  function saveFavorites(){
+    try { localStorage.setItem('hikari_favorites', JSON.stringify(state.favorites)); } catch(e){}
+    updateFavBadge();
+  }
+  function isFav(id){ return state.favorites.some(f => f.id === id); }
+  function toggleFav(img){
+    const idx = state.favorites.findIndex(f => f.id === img.id);
+    if (idx >= 0) { state.favorites.splice(idx,1); showToast('Removed from favorites'); }
+    else { state.favorites.push(img); showToast('Saved to favorites'); }
+    saveFavorites();
+    renderGallery();
+    if (state.lightboxIndex >= 0) refreshLightboxFavButton();
+  }
+  function updateFavBadge(){
+    const badge = document.getElementById('favBadge');
+    if (state.favorites.length > 0){
+      badge.style.display = 'grid';
+      badge.textContent = state.favorites.length > 99 ? '99+' : state.favorites.length;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  let toastTimer = null;
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function qs(params){
+    const parts = [];
+    for (const key in params){
+      const val = params[key];
+      if (Array.isArray(val)) val.forEach(v => parts.push(key + '=' + encodeURIComponent(v)));
+      else if (val !== undefined && val !== null && val !== '') parts.push(key + '=' + encodeURIComponent(val));
+    }
+    return parts.join('&');
+  }
+
+  function buildParams(){
+    const params = {
+      Page: state.pageNum,
+      PageSize: PAGE_SIZE,
+      IsNsfw: state.page === 'nsfw' ? 'True' : 'False'
+    };
+    if (state.includedTags.length) params.IncludedTags = state.includedTags;
+    if (state.searchTag) params.IncludedTags = (params.IncludedTags || []).concat([state.searchTag]);
+    if (state.sort === 'favorites') params.OrderBy = 'favorites';
+    else if (state.sort === 'random') params.OrderBy = 'random';
+    else params.OrderBy = 'date';
+    return params;
+  }
+
+  async function fetchImages(reset){
+    if (state.loading) return;
+    state.loading = true;
+    if (reset){
+      state.pageNum = 1;
+      state.hasNext = true;
+      state.items = [];
+      gallery.innerHTML = '';
+      renderSkeletons();
+    } else {
+      loadSpin.style.display = 'flex';
+    }
+
+    const params = buildParams();
+    const url = `${API}/images?${qs(params)}`;
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok){
+        if (res.status === 429){
+          const retry = res.headers.get('Retry-After') || 'a few';
+          throw new Error(`Rate limited — try again in ${retry} seconds.`);
+        }
+        throw new Error(`The archive responded with an error (${res.status}).`);
+      }
+      const data = await res.json();
+      const newItems = Array.isArray(data.items) ? data.items : [];
+      state.hasNext = !!data.hasNextPage;
+      if (reset) gallery.innerHTML = '';
+      state.items = reset ? newItems : state.items.concat(newItems);
+      renderGallery(!reset);
+      if (newItems.length === 0 && reset) renderEmptyState();
+    } catch(err){
+      if (reset) renderErrorState(err.message);
+      else showToast(err.message || 'Could not load more images');
+    } finally {
+      state.loading = false;
+      loadSpin.style.display = 'none';
+    }
+  }
+
+  function renderSkeletons(){
+    gallery.innerHTML = '';
+    const heights = [220,300,260,340,240,280,320,250,290,230,310,260];
+    for (let i=0;i<12;i++){
+      const sk = document.createElement('div');
+      sk.className = 'skeleton';
+      sk.style.height = heights[i % heights.length] + 'px';
+      gallery.appendChild(sk);
+    }
+  }
+
+  function renderEmptyState(){
+    gallery.innerHTML = `
+      <div class="empty-state">
+        <span class="glyph">🌙</span>
+        <h3>Nothing matched that search</h3>
+        <p>Try a different tag, or clear your filters.</p>
+      </div>`;
+  }
+
+  function renderErrorState(msg){
+    gallery.innerHTML = `
+      <div class="error-state">
+        <span class="glyph">⚠️</span>
+        <h3>Couldn't reach the archive</h3>
+        <p>${escapeHtml(msg || 'Something went wrong while loading images.')}</p>
+        <button id="retryBtn">Try again</button>
+      </div>`;
+    document.getElementById('retryBtn').onclick = () => fetchImages(true);
+  }
+
+  function escapeHtml(s){
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function renderGallery(appendOnly){
+    if (!appendOnly) gallery.innerHTML = '';
+    const startIdx = appendOnly ? gallery.querySelectorAll('.tile').length : 0;
+    const itemsToRender = appendOnly ? state.items.slice(startIdx) : state.items;
+
+    itemsToRender.forEach((img, i) => {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      tile.style.animationDelay = (i % 12 * 0.03) + 's';
+      tile.dataset.id = img.id;
+      tile.style.background = img.dominantColor || 'var(--card)';
+
+      const tagNames = (img.tags || []).slice(0,3).map(t => t.name);
+      const favCount = img.favorites || 0;
+      const fav = isFav(img.id);
+
+      tile.innerHTML = `
+        <img src="${img.url}" alt="${escapeHtml((img.tags||[])[0]?.name || 'anime artwork')}" loading="lazy">
+        <div class="overlay">
+          <div class="tags-row">${tagNames.map(t => `<span>${escapeHtml(t)}</span>`).join('')}</div>
+          <div class="meta-row">
+            <span class="fav-count">♥ ${favCount}</span>
+            <button class="fav-btn ${fav ? 'is-fav' : ''}" data-id="${img.id}">
+              <svg viewBox="0 0 24 24" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+            </button>
+          </div>
+        </div>`;
+
+      tile.querySelector('img').onerror = function(){ tile.remove(); };
+      tile.querySelector('.fav-btn').onclick = (e) => {
+        e.stopPropagation();
+        toggleFav(img);
+      };
+      tile.onclick = () => openLightbox(state.items.indexOf(img));
+
+      gallery.appendChild(tile);
+    });
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && state.hasNext && !state.loading && state.items.length > 0){
+        state.pageNum += 1;
+        fetchImages(false);
+      }
+    });
+  }, { rootMargin: '600px' });
+  io.observe(sentinel);
+
+  async function loadTags(){
+    const tagList = document.getElementById('tagList');
+    try {
+      const res = await fetch(`${API}/tags`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const tags = Array.isArray(data) ? data : (data.items || []);
+      state.tagObjects = tags;
+      renderTagList();
+    } catch(e){
+      tagList.innerHTML = '<p style="color:var(--text-faint);font-size:13px;">Tags unavailable right now.</p>';
+    }
+  }
+
+  function renderTagList(){
+    const tagList = document.getElementById('tagList');
+    if (!state.tagObjects.length){
+      tagList.innerHTML = '<p style="color:var(--text-faint);font-size:13px;">No tags found.</p>';
+      return;
+    }
+    tagList.innerHTML = state.tagObjects.map(t => {
+      const name = t.name || t.slug || t;
+      const active = state.includedTags.includes(t.slug || name);
+      return `<button class="${active ? 'active':''}" data-slug="${escapeHtml(t.slug || name)}">${escapeHtml(name)}</button>`;
+    }).join('');
+    tagList.querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        const slug = btn.dataset.slug;
+        const idx = state.includedTags.indexOf(slug);
+        if (idx >= 0) state.includedTags.splice(idx,1);
+        else state.includedTags.push(slug);
+        renderTagList();
+        renderActiveTagChips();
+        fetchImages(true);
+      };
+    });
+  }
+
+  function renderActiveTagChips(){
+    const wrap = document.getElementById('activeTagChips');
+    wrap.innerHTML = state.includedTags.map(tag => `
+      <button class="chip active" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)} <span class="x">✕</span></button>
+    `).join('');
+    wrap.querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        const tag = btn.dataset.tag;
+        state.includedTags = state.includedTags.filter(t => t !== tag);
+        renderTagList();
+        renderActiveTagChips();
+        fetchImages(true);
+      };
+    });
+  }
+
+  document.getElementById('tagsChip').onclick = () => {
+    document.getElementById('tagPanel').classList.add('open');
+    if (!state.tagObjects.length) loadTags();
+  };
+  document.getElementById('tagPanel').onclick = (e) => {
+    if (e.target.id === 'tagPanel') e.currentTarget.classList.remove('open');
+  };
+
+  document.getElementById('randomChip').onclick = () => {
+    state.sort = 'random';
+    document.getElementById('sortSelect').value = 'random';
+    fetchImages(true);
+  };
+
+  document.getElementById('sortSelect').onchange = (e) => {
+    state.sort = e.target.value;
+    fetchImages(true);
+  };
+
+  let searchDebounce = null;
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    clearTimeout(searchDebounce);
+    const val = e.target.value.trim().toLowerCase();
+    searchDebounce = setTimeout(() => {
+      state.searchTag = val;
+      fetchImages(true);
+    }, 400);
+  });
+
+  function openLightbox(index){
+    state.lightboxIndex = index;
+    renderLightbox();
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox(){
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function renderLightbox(){
+    const img = state.items[state.lightboxIndex];
+    if (!img) return;
+    document.getElementById('lbImg').src = img.url;
+    const mainTag = (img.tags || [])[0]?.name;
+    document.getElementById('lbTitle').textContent = mainTag ? `${mainTag} artwork` : 'Untitled piece';
+    const artist = (img.artists || [])[0];
+    const artistEl = document.getElementById('lbArtist');
+    if (artist){
+      const link = artist.pixiv || artist.twitter || artist.deviantArt || img.source;
+      artistEl.innerHTML = link ? `by <a href="${link}" target="_blank" rel="noopener">${escapeHtml(artist.name)}</a>` : `by ${escapeHtml(artist.name)}`;
+    } else if (img.source){
+      artistEl.innerHTML = `Source: <a href="${img.source}" target="_blank" rel="noopener">original post</a>`;
+    } else {
+      artistEl.textContent = '';
+    }
+    document.getElementById('lbTags').innerHTML = (img.tags || []).map(t => `<span>${escapeHtml(t.name)}</span>`).join('');
+    document.getElementById('lbFav').textContent = img.favorites || 0;
+    document.getElementById('lbDims').textContent = img.width && img.height ? `${img.width}×${img.height}` : '—';
+    document.getElementById('lbSize').textContent = img.byteSize ? (img.byteSize/1024/1024).toFixed(1) + ' MB' : '—';
+    document.getElementById('lbDownloadBtn').href = img.url;
+    document.getElementById('lbDownloadBtn').setAttribute('download', `hikari-${img.id}${img.extension || ''}`);
+    refreshLightboxFavButton();
+  }
+  function refreshLightboxFavButton(){
+    const img = state.items[state.lightboxIndex];
+    const btn = document.getElementById('lbFavBtn');
+    const fav = isFav(img.id);
+    btn.innerHTML = fav
+      ? `<svg viewBox="0 0 24 24" fill="var(--accent-b)" stroke="var(--accent-b)" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg> Saved`
+      : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg> Save`;
+  }
+  document.getElementById('lbFavBtn').onclick = () => toggleFav(state.items[state.lightboxIndex]);
+  document.getElementById('lbCopyBtn').onclick = async () => {
+    const img = state.items[state.lightboxIndex];
+    try {
+      await navigator.clipboard.writeText(img.url);
+      showToast('Link copied');
+    } catch(e){
+      showToast('Could not copy link');
+    }
+  };
+  document.getElementById('lbClose').onclick = closeLightbox;
+  document.getElementById('lbPrev').onclick = () => {
+    if (state.lightboxIndex > 0){ state.lightboxIndex--; renderLightbox(); }
+  };
+  document.getElementById('lbNext').onclick = () => {
+    if (state.lightboxIndex < state.items.length - 1){ state.lightboxIndex++; renderLightbox(); }
+    if (state.lightboxIndex >= state.items.length - 4 && state.hasNext && !state.loading){
+      state.pageNum += 1;
+      fetchImages(false);
+    }
+  };
+  document.addEventListener('keydown', (e) => {
+    if (!document.getElementById('lightbox').classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') document.getElementById('lbPrev').click();
+    if (e.key === 'ArrowRight') document.getElementById('lbNext').click();
+  });
+  document.getElementById('lightbox').addEventListener('click', (e) => {
+    if (e.target.id === 'lightbox') closeLightbox();
+  });
+
+  function switchPage(page){
+    if (page === 'nsfw' && !state.ageConfirmed){
+      document.getElementById('ageGate').style.display = 'flex';
+      return;
+    }
+    state.page = page;
+    state.includedTags = [];
+    state.searchTag = '';
+    document.getElementById('searchInput').value = '';
+    document.querySelectorAll('nav.pages button').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+    renderActiveTagChips();
+
+    if (page === 'nsfw'){
+      heroSection.querySelector('h1').innerHTML = `After dark, <em>uncensored</em> curation.`;
+      heroSection.querySelector('p').textContent = 'Adults-only artwork from the same archive. Browse responsibly.';
+    } else {
+      heroSection.querySelector('h1').innerHTML = `Curated anime art, <em>endlessly</em> scrollable.`;
+      heroSection.querySelector('p').textContent = 'Four thousand-plus illustrations pulled straight from the Hikari archive — filter by tag, save favorites, and lose an afternoon.';
+    }
+    fetchImages(true);
+  }
+
+  document.querySelectorAll('nav.pages button').forEach(btn => {
+    btn.onclick = () => switchPage(btn.dataset.page);
+  });
+
+  document.getElementById('gateConfirm').onclick = () => {
+    state.ageConfirmed = true;
+    localStorage.setItem('hikari_age_ok', '1');
+    document.getElementById('ageGate').style.display = 'none';
+    switchPage('nsfw');
+  };
+  document.getElementById('gateLeave').onclick = () => {
+    document.getElementById('ageGate').style.display = 'none';
+  };
+
+  document.getElementById('favBtn').onclick = () => {
+    if (state.favorites.length === 0){
+      showToast('No favorites saved yet');
+      return;
+    }
+    state.items = state.favorites.slice();
+    state.hasNext = false;
+    document.querySelectorAll('nav.pages button').forEach(b => b.classList.remove('active'));
+    heroSection.querySelector('h1').innerHTML = `Your <em>saved</em> favorites.`;
+    heroSection.querySelector('p').textContent = `${state.favorites.length} piece${state.favorites.length===1?'':'s'} saved on this device.`;
+    renderGallery(false);
+  };
+
+  updateFavBadge();
+  fetchImages(true);
+})();
+</script>
+</body>
+</html>
