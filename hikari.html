@@ -12,25 +12,25 @@
   :root {
     color-scheme: dark;
     --bg: #0d0b12;
-    --bg-raised: #15121c;
+    --bg-raised: #161320;
     --card: #1a1623;
     --card-hover: #211c2c;
-    --line: #2a2434;
+    --line: #28222f;
     --text: #ece7f5;
     --text-dim: #a89fc0;
     --text-faint: #6f6686;
     --accent-a: #a855f7;
     --accent-b: #ec4899;
     --accent-grad: linear-gradient(135deg, var(--accent-a), var(--accent-b));
-    --nsfw: #f43f5e;
     --radius: 14px;
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --header-h: 64px;
   }
 
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; }
-  html { scroll-padding-top: calc(72px + var(--safe-top)); }
+  html { scroll-padding-top: calc(var(--header-h) + var(--safe-top) + 12px); }
 
   body {
     margin: 0;
@@ -47,23 +47,24 @@
     content: "";
     position: fixed;
     inset: 0 0 auto;
-    height: calc(72px + var(--safe-top));
-    background: rgba(13,11,18,.78);
+    height: calc(var(--header-h) + var(--safe-top));
+    background: rgba(13,11,18,.85);
     backdrop-filter: blur(16px);
     z-index: 10;
   }
 
   ::selection { background: var(--accent-a); color: #fff; }
-
   a { color: inherit; text-decoration: none; }
+  button, input, select { font: inherit; }
+  :focus-visible { outline: 2px solid var(--accent-a); outline-offset: 2px; }
 
   .bg-glow {
     position: fixed;
     inset: 0;
     z-index: -1;
     background:
-      radial-gradient(640px 420px at 15% -5%, rgba(168,85,247,.16), transparent 60%),
-      radial-gradient(520px 420px at 100% 10%, rgba(236,72,153,.12), transparent 60%);
+      radial-gradient(500px 360px at 10% -5%, rgba(168,85,247,.14), transparent 60%),
+      radial-gradient(440px 360px at 100% 8%, rgba(236,72,153,.10), transparent 60%);
     pointer-events: none;
   }
 
@@ -71,88 +72,39 @@
     position: sticky;
     top: var(--safe-top);
     z-index: 20;
-    height: 72px;
+    height: var(--header-h);
     display: flex;
     align-items: center;
-    padding: 0 20px;
-    gap: 18px;
+    padding: 0 16px;
+    gap: 12px;
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
   .brand {
     display: flex;
     align-items: baseline;
-    gap: 8px;
+    gap: 7px;
     font-family: 'Fraunces', serif;
     font-weight: 600;
-    font-size: 23px;
-    letter-spacing: .2px;
+    font-size: 21px;
     flex-shrink: 0;
     cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--text);
+    padding: 0;
   }
   .brand .dot {
-    width: 7px; height: 7px; border-radius: 50%;
+    width: 6px; height: 6px; border-radius: 50%;
     background: var(--accent-grad);
     display: inline-block;
-    margin-inline-start: 1px;
   }
 
-  nav.pages {
-    display: flex;
-    background: var(--bg-raised);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 4px;
-    gap: 2px;
-    flex-shrink: 0;
-  }
-  nav.pages button {
-    border: none;
-    background: transparent;
-    color: var(--text-dim);
-    font-family: inherit;
-    font-weight: 600;
-    font-size: 13.5px;
-    padding: 8px 16px;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: color .15s;
-    white-space: nowrap;
-  }
-  nav.pages button.active {
-    background: var(--card);
-    color: var(--text);
-  }
-  nav.pages button[data-page="nsfw"].active { color: #ffb4c6; }
-
-  .search-wrap {
-    flex: 1;
-    max-width: 420px;
-    position: relative;
-    margin-inline-start: auto;
-  }
-  .search-wrap input {
-    width: 100%;
-    background: var(--bg-raised);
-    border: 1px solid var(--line);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 14px;
-    padding: 10px 14px 10px 38px;
-    border-radius: 999px;
-    outline: none;
-    transition: border-color .15s;
-  }
-  .search-wrap input:focus { border-color: var(--accent-a); }
-  .search-wrap svg {
-    position: absolute;
-    left: 14px; top: 50%;
-    transform: translateY(-50%);
-    width: 15px; height: 15px;
-    stroke: var(--text-faint);
-  }
+  .header-spacer { flex: 1; }
 
   .icon-btn {
-    width: 40px; height: 40px;
+    width: 38px; height: 38px;
     display: grid; place-items: center;
     background: var(--bg-raised);
     border: 1px solid var(--line);
@@ -160,10 +112,11 @@
     cursor: pointer;
     flex-shrink: 0;
     position: relative;
+    color: var(--text);
     transition: background .15s, border-color .15s;
   }
   .icon-btn:hover { background: var(--card-hover); border-color: #3a3348; }
-  .icon-btn svg { width: 18px; height: 18px; stroke: var(--text); }
+  .icon-btn svg { width: 17px; height: 17px; stroke: currentColor; }
   .icon-btn .badge {
     position: absolute;
     top: -3px; right: -3px;
@@ -177,22 +130,40 @@
     padding: 0 3px;
   }
 
+  .search-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0 14px;
+    height: 38px;
+    width: 100%;
+    max-width: 340px;
+    color: var(--text-faint);
+    font-size: 13.5px;
+    cursor: pointer;
+  }
+  .search-btn svg { width: 15px; height: 15px; stroke: currentColor; flex-shrink: 0; }
+  .search-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+
   main {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 28px 20px 80px;
+    padding: 20px 16px 90px;
   }
 
   .hero {
-    padding: 36px 4px 28px;
+    padding: 22px 2px 20px;
   }
   .hero h1 {
     font-family: 'Fraunces', serif;
     font-weight: 600;
-    font-size: clamp(32px, 5vw, 52px);
-    line-height: 1.05;
-    margin: 0 0 10px;
-    max-width: 14ch;
+    font-size: clamp(26px, 6vw, 42px);
+    line-height: 1.08;
+    margin: 0 0 8px;
+    max-width: 16ch;
   }
   .hero h1 em {
     font-style: italic;
@@ -204,33 +175,60 @@
   }
   .hero p {
     color: var(--text-dim);
-    font-size: 15.5px;
+    font-size: 14.5px;
     max-width: 52ch;
     line-height: 1.6;
     margin: 0;
   }
 
-  .toolbar {
+  .mode-row {
     display: flex;
-    flex-wrap: wrap;
     gap: 8px;
-    align-items: center;
-    margin: 22px 0 22px;
+    margin: 0 0 16px;
   }
+  .mode-tab {
+    flex: 1;
+    text-align: center;
+    border: 1px solid var(--line);
+    background: var(--bg-raised);
+    color: var(--text-dim);
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 11px 8px;
+    border-radius: 11px;
+    cursor: pointer;
+  }
+  .mode-tab.active {
+    background: var(--accent-grad);
+    border-color: transparent;
+    color: #fff;
+  }
+  .mode-tab.active[data-page="nsfw"] { background: linear-gradient(135deg,#f43f5e,#ec4899); }
+
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 18px;
+    scrollbar-width: none;
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+
   .chip {
     border: 1px solid var(--line);
     background: var(--bg-raised);
     color: var(--text-dim);
-    font-family: inherit;
     font-size: 13px;
     font-weight: 600;
-    padding: 7px 14px;
+    padding: 8px 14px;
     border-radius: 999px;
     cursor: pointer;
-    transition: all .15s;
     display: flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .chip:hover { border-color: #463d59; color: var(--text); }
   .chip.active {
@@ -238,36 +236,17 @@
     border-color: transparent;
     color: #fff;
   }
-  .chip .x { opacity: .7; font-size: 11px; }
-
-  .toolbar-divider {
-    width: 1px; height: 20px;
-    background: var(--line);
-    margin: 0 4px;
-  }
-
-  select.sort {
-    background: var(--bg-raised);
-    border: 1px solid var(--line);
-    color: var(--text-dim);
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 8px 12px;
-    border-radius: 999px;
-    cursor: pointer;
-    margin-inline-start: auto;
-  }
+  .chip .x { opacity: .75; font-size: 11px; }
 
   .masonry {
-    columns: 5 240px;
-    column-gap: 14px;
+    columns: 4 230px;
+    column-gap: 12px;
   }
-  @media (max-width: 680px) { .masonry { columns: 2 150px; column-gap: 10px; } }
+  @media (max-width: 620px) { .masonry { columns: 2 140px; column-gap: 8px; } }
 
   .tile {
     break-inside: avoid;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     border-radius: var(--radius);
     overflow: hidden;
     position: relative;
@@ -275,30 +254,30 @@
     border: 1px solid var(--line);
     cursor: pointer;
     opacity: 0;
-    animation: rise .5s ease forwards;
+    animation: rise .45s ease forwards;
   }
-  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
   .tile img {
     display: block;
     width: 100%;
     height: auto;
-    transition: transform .4s ease;
   }
-  .tile:hover img { transform: scale(1.035); }
 
   .tile .overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,0) 42%);
-    opacity: 0;
-    transition: opacity .2s;
+    background: linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,0) 46%);
+    opacity: 1;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    padding: 10px;
+    padding: 9px;
   }
-  .tile:hover .overlay { opacity: 1; }
+  @media (hover: hover) {
+    .tile .overlay { opacity: 0; transition: opacity .2s; }
+    .tile:hover .overlay { opacity: 1; }
+  }
   .tile .tags-row {
     display: flex;
     flex-wrap: wrap;
@@ -306,11 +285,10 @@
     margin-bottom: 6px;
   }
   .tile .tags-row span {
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 700;
-    background: rgba(255,255,255,.14);
-    backdrop-filter: blur(4px);
-    padding: 3px 8px;
+    background: rgba(255,255,255,.16);
+    padding: 3px 7px;
     border-radius: 999px;
   }
   .tile .meta-row {
@@ -319,43 +297,28 @@
     align-items: center;
   }
   .tile .meta-row .fav-count {
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 11.5px;
+    font-weight: 700;
     color: #fff;
     display: flex;
     align-items: center;
     gap: 4px;
   }
   .tile .fav-btn {
-    width: 30px; height: 30px;
+    width: 28px; height: 28px;
     border-radius: 999px;
-    background: rgba(255,255,255,.14);
-    backdrop-filter: blur(4px);
+    background: rgba(255,255,255,.16);
     border: none;
     display: grid; place-items: center;
     cursor: pointer;
+    color: #fff;
   }
-  .tile .fav-btn svg { width: 15px; height: 15px; stroke: #fff; fill: none; }
+  .tile .fav-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; }
   .tile .fav-btn.is-fav svg { fill: var(--accent-b); stroke: var(--accent-b); }
-
-  .tile.nsfw-locked .overlay {
-    opacity: 1;
-    background: rgba(13,11,18,.88);
-    backdrop-filter: blur(22px);
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 4px;
-  }
-  .tile.nsfw-locked .overlay .lock-label {
-    font-size: 11px; font-weight: 700;
-    letter-spacing: .3px;
-    color: var(--text-dim);
-  }
 
   .skeleton {
     break-inside: avoid;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     border-radius: var(--radius);
     background: linear-gradient(100deg, var(--card) 30%, var(--card-hover) 50%, var(--card) 70%);
     background-size: 200% 100%;
@@ -366,17 +329,17 @@
   .empty-state, .error-state {
     grid-column: 1 / -1;
     text-align: center;
-    padding: 70px 20px;
+    padding: 60px 16px;
     color: var(--text-dim);
   }
-  .empty-state .glyph, .error-state .glyph { font-size: 38px; margin-bottom: 14px; display: block; }
-  .empty-state h3, .error-state h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; color: var(--text); margin: 0 0 6px; }
+  .empty-state .glyph, .error-state .glyph { font-size: 34px; margin-bottom: 12px; display: block; }
+  .empty-state h3, .error-state h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 19px; color: var(--text); margin: 0 0 6px; }
+  .error-state p, .empty-state p { font-size: 13.5px; margin: 0; }
   .error-state button {
     margin-top: 16px;
     background: var(--accent-grad);
     border: none;
     color: #fff;
-    font-family: inherit;
     font-weight: 700;
     font-size: 13.5px;
     padding: 10px 20px;
@@ -389,10 +352,10 @@
   .loadmore-spin {
     display: flex;
     justify-content: center;
-    padding: 30px 0;
+    padding: 26px 0;
   }
   .spinner {
-    width: 26px; height: 26px;
+    width: 24px; height: 24px;
     border-radius: 50%;
     border: 3px solid var(--line);
     border-top-color: var(--accent-a);
@@ -403,36 +366,130 @@
     .spinner, .tile, .skeleton { animation: none !important; }
   }
 
+  /* bottom sheet base, used by search / tags / lightbox-mobile */
+  .sheet-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(8,6,12,.72);
+    backdrop-filter: blur(6px);
+    z-index: 90;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s;
+  }
+  .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  .sheet {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    max-height: 82vh;
+    background: var(--bg-raised);
+    border-top: 1px solid var(--line);
+    border-radius: 20px 20px 0 0;
+    padding: 18px 18px calc(18px + var(--safe-bottom));
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform .25s ease;
+  }
+  .sheet-backdrop.open .sheet { transform: translateY(0); }
+  .sheet .handle {
+    width: 36px; height: 4px;
+    background: var(--line);
+    border-radius: 999px;
+    margin: 0 auto 16px;
+  }
+  .sheet h3 { font-family: 'Fraunces', serif; font-size: 18px; margin: 0 0 14px; }
+
+  @media (min-width: 720px) {
+    .sheet {
+      left: 50%; right: auto; bottom: auto; top: 90px;
+      transform: translate(-50%, -10px);
+      width: min(480px, 92vw);
+      border-radius: 18px;
+      max-height: 70vh;
+    }
+    .sheet-backdrop.open .sheet { transform: translate(-50%, 0); }
+    .sheet .handle { display: none; }
+  }
+
+  #searchSheetInput {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-size: 15px;
+    padding: 12px 14px;
+    border-radius: 11px;
+    outline: none;
+    margin-bottom: 14px;
+  }
+  #searchSheetInput:focus { border-color: var(--accent-a); }
+
+  .tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag-list button {
+    font-size: 12.5px;
+    font-weight: 600;
+    background: var(--card);
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    padding: 7px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .tag-list button.active {
+    background: var(--accent-grad);
+    border-color: transparent;
+    color: #fff;
+  }
+
+  .sort-row { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .sort-row button {
+    flex: 1;
+    min-width: 90px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 9px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .sort-row button.active { background: var(--accent-grad); border-color: transparent; color: #fff; }
+
   /* lightbox */
   .lightbox {
     position: fixed; inset: 0;
-    background: rgba(8,6,12,.96);
-    backdrop-filter: blur(10px);
+    background: rgba(8,6,12,.97);
     z-index: 100;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
-    padding: calc(20px + var(--safe-top)) 16px calc(20px + var(--safe-bottom));
     opacity: 0;
     pointer-events: none;
     transition: opacity .2s;
   }
   .lightbox.open { opacity: 1; pointer-events: auto; }
+
   .lightbox-inner {
     display: flex;
-    max-width: 1100px;
+    flex-direction: column;
     width: 100%;
     max-height: 100%;
-    gap: 0;
     background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 18px;
+    border-radius: 20px 20px 0 0;
     overflow: hidden;
   }
-  @media (max-width: 760px) { .lightbox-inner { flex-direction: column; overflow-y: auto; } }
+  @media (min-width: 720px) {
+    .lightbox { align-items: center; padding: 24px; }
+    .lightbox-inner {
+      flex-direction: row;
+      max-width: 1000px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+    }
+  }
 
   .lightbox-img-wrap {
-    flex: 1 1 60%;
+    flex: 1 1 auto;
     min-width: 0;
     background: #000;
     display: flex;
@@ -442,115 +499,128 @@
   }
   .lightbox-img-wrap img {
     max-width: 100%;
-    max-height: 82vh;
+    max-height: 44vh;
     width: auto; height: auto;
     display: block;
     object-fit: contain;
   }
-  @media (max-width: 760px) { .lightbox-img-wrap img { max-height: 50vh; } }
+  @media (min-width: 720px) {
+    .lightbox-img-wrap { flex: 1 1 62%; }
+    .lightbox-img-wrap img { max-height: 80vh; }
+  }
 
   .lightbox-nav {
     position: absolute;
     top: 50%; transform: translateY(-50%);
-    width: 42px; height: 42px;
-    background: rgba(0,0,0,.45);
+    width: 38px; height: 38px;
+    background: rgba(0,0,0,.5);
     border: none;
     border-radius: 50%;
     display: grid; place-items: center;
     cursor: pointer;
     color: #fff;
   }
-  .lightbox-nav svg { width: 20px; height: 20px; stroke: #fff; }
-  .lightbox-nav.prev { left: 14px; }
-  .lightbox-nav.next { right: 14px; }
+  .lightbox-nav svg { width: 18px; height: 18px; stroke: currentColor; }
+  .lightbox-nav.prev { left: 10px; }
+  .lightbox-nav.next { right: 10px; }
 
   .lightbox-panel {
-    flex: 0 0 320px;
-    padding: 22px;
+    flex: 0 0 auto;
+    padding: 16px 18px calc(16px + var(--safe-bottom));
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    max-height: 40vh;
   }
-  .lightbox-panel .lb-close {
-    align-self: flex-end;
-    width: 32px; height: 32px;
+  @media (min-width: 720px) {
+    .lightbox-panel { flex: 0 0 320px; max-height: 80vh; padding: 22px; }
+  }
+
+  .lb-top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 4px; }
+  .lightbox-panel h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0;
+  }
+  .lb-close {
+    width: 30px; height: 30px;
     border-radius: 50%;
     background: var(--bg-raised);
     border: 1px solid var(--line);
     display: grid; place-items: center;
     cursor: pointer;
-    margin-bottom: 14px;
+    flex-shrink: 0;
+    color: var(--text);
   }
-  .lightbox-panel .lb-close svg { width: 14px; height: 14px; stroke: var(--text); }
-  .lightbox-panel h3 {
-    font-family: 'Fraunces', serif;
-    font-size: 19px;
-    font-weight: 600;
-    margin: 0 0 4px;
-  }
-  .lightbox-panel .lb-artist {
+  .lb-close svg { width: 13px; height: 13px; stroke: currentColor; }
+  .lb-artist {
     color: var(--text-dim);
-    font-size: 13.5px;
-    margin: 0 0 16px;
+    font-size: 13px;
+    margin: 0 0 12px;
   }
-  .lightbox-panel .lb-artist a { color: var(--accent-a); font-weight: 600; }
-  .lb-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+  .lb-artist a { color: var(--accent-a); font-weight: 600; }
+  .lb-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
   .lb-tags span {
-    font-size: 11.5px; font-weight: 600;
+    font-size: 11px; font-weight: 600;
     background: var(--bg-raised);
     border: 1px solid var(--line);
-    padding: 4px 10px;
+    padding: 4px 9px;
     border-radius: 999px;
     color: var(--text-dim);
   }
   .lb-stats {
     display: flex;
-    gap: 16px;
-    font-size: 12.5px;
+    gap: 14px;
+    font-size: 12px;
     color: var(--text-faint);
-    margin-bottom: 18px;
-    padding-bottom: 18px;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
     border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
   }
   .lb-stats b { color: var(--text); font-weight: 700; }
   .lb-actions { display: flex; gap: 8px; margin-top: auto; }
-  .lb-actions button {
+  .lb-actions button, .lb-actions a {
     flex: 1;
-    display: flex; align-items: center; justify-content: center; gap: 7px;
-    font-family: inherit;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
     font-weight: 700;
-    font-size: 13px;
-    padding: 11px 10px;
+    font-size: 12.5px;
+    padding: 11px 8px;
     border-radius: 10px;
     border: 1px solid var(--line);
     background: var(--bg-raised);
     color: var(--text);
     cursor: pointer;
-    transition: background .15s;
+    text-decoration: none;
   }
   .lb-actions button:hover { background: var(--card-hover); }
-  .lb-actions button.primary {
+  .lb-actions a.primary {
     background: var(--accent-grad);
     border-color: transparent;
     color: #fff;
   }
-  .lb-actions button svg { width: 15px; height: 15px; }
+  .lb-actions svg { width: 14px; height: 14px; stroke: currentColor; flex-shrink: 0; }
+
   .toast {
     position: fixed;
-    bottom: calc(24px + var(--safe-bottom));
+    bottom: calc(20px + var(--safe-bottom));
     left: 50%; transform: translateX(-50%) translateY(20px);
     background: var(--card);
     border: 1px solid var(--line);
     color: var(--text);
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 600;
-    padding: 11px 18px;
+    padding: 10px 16px;
     border-radius: 999px;
     z-index: 200;
     opacity: 0;
     transition: all .25s;
     pointer-events: none;
     white-space: nowrap;
+    max-width: 90vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -562,35 +632,34 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px;
+    padding: 20px;
   }
   .gate-card {
-    max-width: 420px;
+    max-width: 400px;
     width: 100%;
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: 20px;
-    padding: 36px 30px;
+    padding: 32px 26px;
     text-align: center;
   }
-  .gate-card .glyph { font-size: 34px; margin-bottom: 14px; }
+  .gate-card .glyph { font-size: 32px; margin-bottom: 12px; }
   .gate-card h2 {
     font-family: 'Fraunces', serif;
     font-weight: 600;
-    font-size: 23px;
+    font-size: 21px;
     margin: 0 0 10px;
   }
   .gate-card p {
     color: var(--text-dim);
-    font-size: 14px;
+    font-size: 13.5px;
     line-height: 1.6;
-    margin: 0 0 24px;
+    margin: 0 0 22px;
   }
   .gate-card .gate-actions { display: flex; flex-direction: column; gap: 10px; }
   .gate-card button {
-    font-family: inherit;
     font-weight: 700;
-    font-size: 14.5px;
+    font-size: 14px;
     padding: 13px;
     border-radius: 11px;
     cursor: pointer;
@@ -606,69 +675,21 @@
     color: var(--text-dim);
   }
   .gate-card .fine {
-    font-size: 11.5px;
+    font-size: 11px;
     color: var(--text-faint);
-    margin-top: 18px;
+    margin-top: 16px;
     line-height: 1.5;
-  }
-
-  .tag-panel {
-    position: fixed;
-    inset: 0;
-    background: rgba(8,6,12,.7);
-    backdrop-filter: blur(6px);
-    z-index: 90;
-    opacity: 0; pointer-events: none;
-    transition: opacity .2s;
-  }
-  .tag-panel.open { opacity: 1; pointer-events: auto; }
-  .tag-sheet {
-    position: absolute;
-    top: 0; right: 0;
-    height: 100%;
-    width: min(360px, 100%);
-    background: var(--bg-raised);
-    border-left: 1px solid var(--line);
-    padding: calc(24px + var(--safe-top)) 22px 22px;
-    overflow-y: auto;
-    transform: translateX(100%);
-    transition: transform .25s ease;
-  }
-  .tag-panel.open .tag-sheet { transform: translateX(0); }
-  .tag-sheet h3 { font-family: 'Fraunces', serif; font-size: 19px; margin: 0 0 16px; }
-  .tag-sheet .tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
-  .tag-sheet .tag-list button {
-    font-family: inherit;
-    font-size: 12.5px;
-    font-weight: 600;
-    background: var(--card);
-    border: 1px solid var(--line);
-    color: var(--text-dim);
-    padding: 7px 12px;
-    border-radius: 999px;
-    cursor: pointer;
-  }
-  .tag-sheet .tag-list button.active {
-    background: var(--accent-grad);
-    border-color: transparent;
-    color: #fff;
   }
 
   footer {
     border-top: 1px solid var(--line);
-    padding: 30px 20px 50px;
+    padding: 26px 16px 46px;
     text-align: center;
     color: var(--text-faint);
-    font-size: 12.5px;
+    font-size: 12px;
     line-height: 1.8;
-  }
-  footer a { color: var(--text-dim); font-weight: 600; }
-
-  @media (max-width: 680px) {
-    .search-wrap { display: none; }
-    .brand { font-size: 20px; }
-    header { padding: 0 14px; gap: 10px; }
-    main { padding: 18px 14px 60px; }
+    max-width: 1200px;
+    margin: 0 auto;
   }
 </style>
 </head>
@@ -677,16 +698,12 @@
 <div class="bg-glow"></div>
 
 <header>
-  <div class="brand" onclick="window.scrollTo({top:0,behavior:'smooth'})">Hikari<span class="dot"></span></div>
-  <nav class="pages">
-    <button class="active" data-page="sfw">Explore</button>
-    <button data-page="nsfw">After Dark</button>
-  </nav>
-  <div class="search-wrap">
+  <button class="brand" id="brandBtn">Hikari<span class="dot"></span></button>
+  <div class="header-spacer"></div>
+  <button class="icon-btn" id="searchOpenBtn" aria-label="Search tags">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-    <input id="searchInput" type="text" placeholder="Search a tag, e.g. kitsune, maid, waifu...">
-  </div>
-  <button class="icon-btn" id="favBtn" title="Favorites">
+  </button>
+  <button class="icon-btn" id="favBtn" aria-label="Favorites">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
     <span class="badge" id="favBadge" style="display:none">0</span>
   </button>
@@ -695,18 +712,17 @@
 <main>
   <section class="hero" id="heroSection">
     <h1>Curated anime art, <em>endlessly</em> scrollable.</h1>
-    <p>Four thousand-plus illustrations pulled straight from the Hikari archive — filter by tag, save favorites, and lose an afternoon.</p>
+    <p>Browse the Hikari archive, filter by tag, and save your favorites as you go.</p>
   </section>
 
-  <div class="toolbar">
+  <div class="mode-row">
+    <button class="mode-tab active" data-page="sfw">Explore</button>
+    <button class="mode-tab" data-page="nsfw">After Dark</button>
+  </div>
+
+  <div class="filter-row" id="filterRow">
     <button class="chip" id="randomChip">🎲 Shuffle</button>
-    <button class="chip" id="tagsChip">Browse tags</button>
-    <div id="activeTagChips" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
-    <select class="sort" id="sortSelect">
-      <option value="date">Newest first</option>
-      <option value="favorites">Most favorited</option>
-      <option value="random">Random</option>
-    </select>
+    <button class="chip" id="tagsChip">+ Add tag</button>
   </div>
 
   <div class="masonry" id="gallery"></div>
@@ -716,12 +732,22 @@
 
 <footer>
   Hikari is a fan-made viewer for a public anime image archive. Artwork belongs to its original creators — source links are provided on every piece.<br>
-  Images load live from the archive API and may change over time. By browsing the After Dark page you confirm you meet the required age in your region.
+  Images load live from the archive and may change over time. Browsing After Dark confirms you meet the required age in your region.
 </footer>
 
-<div class="tag-panel" id="tagPanel">
-  <div class="tag-sheet">
-    <h3>Browse tags</h3>
+<div class="sheet-backdrop" id="searchSheetBackdrop">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h3>Search a tag</h3>
+    <input type="text" id="searchSheetInput" placeholder="e.g. kitsune, maid, waifu...">
+    <div class="tag-list" id="quickTagList"></div>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="tagSheetBackdrop">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h3>Browse all tags</h3>
     <div class="tag-list" id="tagList"><div class="skeleton" style="height:28px;width:70px;display:inline-block;"></div></div>
   </div>
 </div>
@@ -729,13 +755,15 @@
 <div class="lightbox" id="lightbox">
   <div class="lightbox-inner">
     <div class="lightbox-img-wrap">
-      <button class="lightbox-nav prev" id="lbPrev"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="lightbox-nav prev" id="lbPrev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg></button>
       <img id="lbImg" alt="">
-      <button class="lightbox-nav next" id="lbNext"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button class="lightbox-nav next" id="lbNext" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M9 18l6-6-6-6"/></svg></button>
     </div>
     <div class="lightbox-panel">
-      <button class="lb-close" id="lbClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
-      <h3 id="lbTitle">Untitled piece</h3>
+      <div class="lb-top-row">
+        <h3 id="lbTitle">Untitled piece</h3>
+        <button class="lb-close" id="lbClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
       <p class="lb-artist" id="lbArtist"></p>
       <div class="lb-tags" id="lbTags"></div>
       <div class="lb-stats">
@@ -745,8 +773,8 @@
       </div>
       <div class="lb-actions">
         <button id="lbFavBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg> Save</button>
-        <button id="lbCopyBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 9h10v10H9zM5 15V5h10"/></svg> Copy link</button>
-        <a id="lbDownloadBtn" class="primary" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:7px;flex:1;font-weight:700;font-size:13px;padding:11px 10px;border-radius:10px;background:var(--accent-grad);color:#fff;" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg> Save image</a>
+        <button id="lbCopyBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 9h10v10H9zM5 15V5h10"/></svg> Copy</button>
+        <a id="lbDownloadBtn" class="primary" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg> Save</a>
       </div>
     </div>
   </div>
@@ -771,20 +799,20 @@
 (function(){
   const API = "https://api.waifu.best";
   const PAGE_SIZE = 24;
+  let QUICK_TAGS = [];
 
   const state = {
     page: "sfw",
     items: [],
     tagObjects: [],
     includedTags: [],
-    searchTag: "",
-    sort: "date",
     pageNum: 1,
     hasNext: true,
     loading: false,
     favorites: loadFavorites(),
     lightboxIndex: -1,
-    ageConfirmed: localStorage.getItem('hikari_age_ok') === '1'
+    ageConfirmed: localStorage.getItem('hikari_age_ok') === '1',
+    viewingFavorites: false
   };
 
   const gallery = document.getElementById('gallery');
@@ -808,7 +836,7 @@
     if (idx >= 0) { state.favorites.splice(idx,1); showToast('Removed from favorites'); }
     else { state.favorites.push(img); showToast('Saved to favorites'); }
     saveFavorites();
-    renderGallery();
+    renderGallery(false);
     if (state.lightboxIndex >= 0) refreshLightboxFavButton();
   }
   function updateFavBadge(){
@@ -847,16 +875,13 @@
       IsNsfw: state.page === 'nsfw' ? 'True' : 'False'
     };
     if (state.includedTags.length) params.IncludedTags = state.includedTags;
-    if (state.searchTag) params.IncludedTags = (params.IncludedTags || []).concat([state.searchTag]);
-    if (state.sort === 'favorites') params.OrderBy = 'favorites';
-    else if (state.sort === 'random') params.OrderBy = 'random';
-    else params.OrderBy = 'date';
     return params;
   }
 
   async function fetchImages(reset){
     if (state.loading) return;
     state.loading = true;
+    state.viewingFavorites = false;
     if (reset){
       state.pageNum = 1;
       state.hasNext = true;
@@ -877,7 +902,9 @@
           const retry = res.headers.get('Retry-After') || 'a few';
           throw new Error(`Rate limited — try again in ${retry} seconds.`);
         }
-        throw new Error(`The archive responded with an error (${res.status}).`);
+        let detail = '';
+        try { const body = await res.json(); detail = body.detail || body.title || ''; } catch(e){}
+        throw new Error(detail || `The archive responded with an error (${res.status}).`);
       }
       const data = await res.json();
       const newItems = Array.isArray(data.items) ? data.items : [];
@@ -897,7 +924,7 @@
 
   function renderSkeletons(){
     gallery.innerHTML = '';
-    const heights = [220,300,260,340,240,280,320,250,290,230,310,260];
+    const heights = [200,280,240,320,220,260,300,230,270,210,290,240];
     for (let i=0;i<12;i++){
       const sk = document.createElement('div');
       sk.className = 'skeleton';
@@ -954,7 +981,7 @@
           <div class="tags-row">${tagNames.map(t => `<span>${escapeHtml(t)}</span>`).join('')}</div>
           <div class="meta-row">
             <span class="fav-count">♥ ${favCount}</span>
-            <button class="fav-btn ${fav ? 'is-fav' : ''}" data-id="${img.id}">
+            <button class="fav-btn ${fav ? 'is-fav' : ''}" data-id="${img.id}" aria-label="${fav ? 'Remove from favorites' : 'Save to favorites'}">
               <svg viewBox="0 0 24 24" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
             </button>
           </div>
@@ -973,7 +1000,7 @@
 
   const io = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if (entry.isIntersecting && state.hasNext && !state.loading && state.items.length > 0){
+      if (entry.isIntersecting && state.hasNext && !state.loading && state.items.length > 0 && !state.viewingFavorites){
         state.pageNum += 1;
         fetchImages(false);
       }
@@ -981,7 +1008,9 @@
   }, { rootMargin: '600px' });
   io.observe(sentinel);
 
+  let tagsLoaded = false;
   async function loadTags(){
+    if (tagsLoaded) return;
     const tagList = document.getElementById('tagList');
     try {
       const res = await fetch(`${API}/tags`);
@@ -989,7 +1018,9 @@
       const data = await res.json();
       const tags = Array.isArray(data) ? data : (data.items || []);
       state.tagObjects = tags;
+      tagsLoaded = true;
       renderTagList();
+      renderQuickTagList();
     } catch(e){
       tagList.innerHTML = '<p style="color:var(--text-faint);font-size:13px;">Tags unavailable right now.</p>';
     }
@@ -1003,65 +1034,102 @@
     }
     tagList.innerHTML = state.tagObjects.map(t => {
       const name = t.name || t.slug || t;
-      const active = state.includedTags.includes(t.slug || name);
-      return `<button class="${active ? 'active':''}" data-slug="${escapeHtml(t.slug || name)}">${escapeHtml(name)}</button>`;
+      const slug = t.slug || name;
+      const active = state.includedTags.includes(slug);
+      return `<button class="${active ? 'active':''}" data-slug="${escapeHtml(slug)}">${escapeHtml(name)}</button>`;
     }).join('');
     tagList.querySelectorAll('button').forEach(btn => {
-      btn.onclick = () => {
-        const slug = btn.dataset.slug;
-        const idx = state.includedTags.indexOf(slug);
-        if (idx >= 0) state.includedTags.splice(idx,1);
-        else state.includedTags.push(slug);
-        renderTagList();
-        renderActiveTagChips();
-        fetchImages(true);
-      };
+      btn.onclick = () => applyTagToggle(btn.dataset.slug);
     });
   }
 
-  function renderActiveTagChips(){
-    const wrap = document.getElementById('activeTagChips');
-    wrap.innerHTML = state.includedTags.map(tag => `
+  function renderQuickTagList(){
+    const wrap = document.getElementById('quickTagList');
+    const top = state.tagObjects.slice(0, 10);
+    if (!top.length){ wrap.innerHTML = ''; return; }
+    wrap.innerHTML = top.map(t => {
+      const name = t.name || t.slug || t;
+      const slug = t.slug || name;
+      const active = state.includedTags.includes(slug);
+      return `<button class="${active ? 'active':''}" data-slug="${escapeHtml(slug)}">${escapeHtml(name)}</button>`;
+    }).join('');
+    wrap.querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => applyTagToggle(btn.dataset.slug);
+    });
+  }
+
+  function applyTagToggle(slug){
+    const idx = state.includedTags.indexOf(slug);
+    if (idx >= 0) state.includedTags.splice(idx,1);
+    else state.includedTags.push(slug);
+    renderTagList();
+    renderQuickTagList();
+    renderFilterRow();
+    fetchImages(true);
+  }
+
+  function renderFilterRow(){
+    const row = document.getElementById('filterRow');
+    const tagChips = state.includedTags.map(tag => `
       <button class="chip active" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)} <span class="x">✕</span></button>
     `).join('');
-    wrap.querySelectorAll('button').forEach(btn => {
-      btn.onclick = () => {
-        const tag = btn.dataset.tag;
-        state.includedTags = state.includedTags.filter(t => t !== tag);
-        renderTagList();
-        renderActiveTagChips();
-        fetchImages(true);
-      };
+    row.innerHTML = `
+      <button class="chip" id="randomChip">🎲 Shuffle</button>
+      ${tagChips}
+      <button class="chip" id="tagsChip">+ Add tag</button>
+    `;
+    document.getElementById('randomChip').onclick = handleShuffle;
+    document.getElementById('tagsChip').onclick = openTagSheet;
+    row.querySelectorAll('.chip[data-tag]').forEach(btn => {
+      btn.onclick = () => applyTagToggle(btn.dataset.tag);
     });
   }
 
-  document.getElementById('tagsChip').onclick = () => {
-    document.getElementById('tagPanel').classList.add('open');
-    if (!state.tagObjects.length) loadTags();
-  };
-  document.getElementById('tagPanel').onclick = (e) => {
-    if (e.target.id === 'tagPanel') e.currentTarget.classList.remove('open');
-  };
-
-  document.getElementById('randomChip').onclick = () => {
-    state.sort = 'random';
-    document.getElementById('sortSelect').value = 'random';
+  function handleShuffle(){
+    state.pageNum = Math.floor(Math.random() * 20) + 1;
     fetchImages(true);
-  };
+  }
 
-  document.getElementById('sortSelect').onchange = (e) => {
-    state.sort = e.target.value;
-    fetchImages(true);
-  };
+  function openSearchSheet(){
+    document.getElementById('searchSheetBackdrop').classList.add('open');
+    document.getElementById('searchSheetInput').focus();
+    loadTags();
+  }
+  function closeSearchSheet(){
+    document.getElementById('searchSheetBackdrop').classList.remove('open');
+  }
+  function openTagSheet(){
+    document.getElementById('tagSheetBackdrop').classList.add('open');
+    loadTags();
+  }
+  function closeTagSheet(){
+    document.getElementById('tagSheetBackdrop').classList.remove('open');
+  }
+
+  document.getElementById('searchOpenBtn').onclick = openSearchSheet;
+  document.getElementById('searchSheetBackdrop').addEventListener('click', (e) => {
+    if (e.target.id === 'searchSheetBackdrop') closeSearchSheet();
+  });
+  document.getElementById('tagSheetBackdrop').addEventListener('click', (e) => {
+    if (e.target.id === 'tagSheetBackdrop') closeTagSheet();
+  });
 
   let searchDebounce = null;
-  document.getElementById('searchInput').addEventListener('input', (e) => {
+  document.getElementById('searchSheetInput').addEventListener('input', (e) => {
     clearTimeout(searchDebounce);
     const val = e.target.value.trim().toLowerCase();
     searchDebounce = setTimeout(() => {
-      state.searchTag = val;
-      fetchImages(true);
-    }, 400);
+      if (!val) return;
+      if (!state.includedTags.includes(val)){
+        state.includedTags.push(val);
+        renderFilterRow();
+        renderTagList();
+        renderQuickTagList();
+        fetchImages(true);
+      }
+      closeSearchSheet();
+      e.target.value = '';
+    }, 500);
   });
 
   function openLightbox(index){
@@ -1122,7 +1190,7 @@
   };
   document.getElementById('lbNext').onclick = () => {
     if (state.lightboxIndex < state.items.length - 1){ state.lightboxIndex++; renderLightbox(); }
-    if (state.lightboxIndex >= state.items.length - 4 && state.hasNext && !state.loading){
+    if (state.lightboxIndex >= state.items.length - 4 && state.hasNext && !state.loading && !state.viewingFavorites){
       state.pageNum += 1;
       fetchImages(false);
     }
@@ -1144,22 +1212,20 @@
     }
     state.page = page;
     state.includedTags = [];
-    state.searchTag = '';
-    document.getElementById('searchInput').value = '';
-    document.querySelectorAll('nav.pages button').forEach(b => b.classList.toggle('active', b.dataset.page === page));
-    renderActiveTagChips();
+    document.querySelectorAll('.mode-tab').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+    renderFilterRow();
 
     if (page === 'nsfw'){
       heroSection.querySelector('h1').innerHTML = `After dark, <em>uncensored</em> curation.`;
       heroSection.querySelector('p').textContent = 'Adults-only artwork from the same archive. Browse responsibly.';
     } else {
       heroSection.querySelector('h1').innerHTML = `Curated anime art, <em>endlessly</em> scrollable.`;
-      heroSection.querySelector('p').textContent = 'Four thousand-plus illustrations pulled straight from the Hikari archive — filter by tag, save favorites, and lose an afternoon.';
+      heroSection.querySelector('p').textContent = 'Browse the Hikari archive, filter by tag, and save your favorites as you go.';
     }
     fetchImages(true);
   }
 
-  document.querySelectorAll('nav.pages button').forEach(btn => {
+  document.querySelectorAll('.mode-tab').forEach(btn => {
     btn.onclick = () => switchPage(btn.dataset.page);
   });
 
@@ -1173,6 +1239,8 @@
     document.getElementById('ageGate').style.display = 'none';
   };
 
+  document.getElementById('brandBtn').onclick = () => window.scrollTo({top:0,behavior:'smooth'});
+
   document.getElementById('favBtn').onclick = () => {
     if (state.favorites.length === 0){
       showToast('No favorites saved yet');
@@ -1180,12 +1248,14 @@
     }
     state.items = state.favorites.slice();
     state.hasNext = false;
-    document.querySelectorAll('nav.pages button').forEach(b => b.classList.remove('active'));
+    state.viewingFavorites = true;
+    document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
     heroSection.querySelector('h1').innerHTML = `Your <em>saved</em> favorites.`;
     heroSection.querySelector('p').textContent = `${state.favorites.length} piece${state.favorites.length===1?'':'s'} saved on this device.`;
     renderGallery(false);
   };
 
+  renderFilterRow();
   updateFavBadge();
   fetchImages(true);
 })();
